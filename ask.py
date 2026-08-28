@@ -18,6 +18,15 @@ GROQ_MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 TOP_K = 8
 MAX_RETRIEVAL_ATTEMPTS = 3
 
+GRAPH_JSON = "graph.json"
+GRAPH_MAX_ADD = 3
+GRAPH_CASE_PER_CLAUSE = 2
+GRAPH_REF_RE = re.compile(
+    r"(?i)\b(?:section|sec)\.?\s*(\d{1,2})\s*"
+    r"(?:\((\d{1,2})\)\s*)?"
+    r"(?:\(([a-z])\))?"
+)
+
 SYSTEM_PROMPT = (
     "You are a legal research assistant specialising in Indian Right to "
     "Information (RTI) law. Answer the user's question using ONLY the provided "
@@ -124,6 +133,104 @@ def parse_section_query(question):
     return m.group(1) if m else None
 
 
+_edge_map = None
+
+
+def clause_key(c):
+    return (
+        str(c.get("section_number") or ""),
+        str(c.get("subsection") or ""),
+        str(c.get("clause") or ""),
+        str(c.get("sub_clause") or ""),
+    )
+
+
+def load_graph():
+    global _edge_map
+    if _edge_map is not None:
+        return _edge_map
+    _edge_map = {}
+    try:
+        with open(GRAPH_JSON, encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        return _edge_map
+    for entry in data:
+        m = re.search(
+            r"section\s*(\d{1,2})(?:\((\d{1,2})\))?(?:\(([a-z])\))?"
+            r"(?:\(([ivxlcdm]{2,6})\))?$",
+            entry.get("source_clause", "") or "",
+        )
+        if not m:
+            continue
+        key = (m.group(1) or "", m.group(2) or "", m.group(3) or "", m.group(4) or "")
+        _edge_map[key] = entry
+    return _edge_map
+
+
+def expand_graph(chunks, out):
+    """Append case-document chunks connected via graph.json to the result list.
+
+    Triggers when a returned chunk is an Act clause that has graph edges, or
+    (reverse direction) when a returned case chunk cites an Act clause that
+    has graph edges.
+    """
+    edge_map = load_graph()
+    if not edge_map:
+        return out
+    out_ids = set(cid for cid, _src, _t in out)
+    added = []
+    handled = set()
+
+    def hook(key, entry):
+        if key in handled:
+            return
+        handled.add(key)
+        docs = [d for d in entry.get("cited_by", []) if d]
+        if not docs:
+            return
+        sec, sub, cla, rom = key
+        suffix = "".join(f"({k})" for k in (sub, cla, rom) if k)
+        plural = "" if len(docs) == 1 else "s"
+        print(
+            f"Graph expansion: Section {sec}{suffix} has {len(docs)} related "
+            f"case{plural} — pulling in {', '.join(docs)} for additional context"
+        )
+        for doc in docs:
+            cands = [i for i, cc in enumerate(chunks)
+                     if cc.get("source_document") == doc
+                     and i not in out_ids
+                     and GRAPH_REF_RE.search(cc.get("text", ""))]
+            for i in cands[:GRAPH_CASE_PER_CLAUSE]:
+                if len(added) >= GRAPH_MAX_ADD:
+                    return
+                added.append(i)
+                out_ids.add(i)
+
+    for cid, _src, _text in list(out):
+        c = chunks[cid]
+        if len(added) >= GRAPH_MAX_ADD:
+            break
+        if c.get("document_type") == "act":
+            key = clause_key(c)
+            entry = edge_map.get(key)
+            if entry:
+                hook(key, entry)
+        else:
+            for m in GRAPH_REF_RE.finditer(c.get("text", "")):
+                if len(added) >= GRAPH_MAX_ADD:
+                    break
+                key = (m.group(1) or "", m.group(2) or "", m.group(3) or "", "")
+                entry = edge_map.get(key)
+                if entry:
+                    hook(key, entry)
+
+    for i in added:
+        cc = chunks[i]
+        out.append((i, label_for(cc), cc["text"]))
+    return out
+
+
 def retrieve(model, bm25, chunks, question):
     query_vec = model.encode([question], normalize_embeddings=True)[0]
     q_tokens = tokenize(question)
@@ -158,7 +265,8 @@ def retrieve(model, bm25, chunks, question):
         out.append(cid)
         if len(out) >= TOP_K:
             break
-    return [(cid, label_for(chunks[cid]), chunks[cid]["text"]) for cid in out]
+    passages = [(cid, label_for(chunks[cid]), chunks[cid]["text"]) for cid in out]
+    return expand_graph(chunks, passages)
 
 
 def answer(client_groq, question, passages, strict=False):
