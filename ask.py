@@ -16,6 +16,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 GROQ_MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 TOP_K = 8
+MAX_RETRIEVAL_ATTEMPTS = 3
 
 SYSTEM_PROMPT = (
     "You are a legal research assistant specialising in Indian Right to "
@@ -27,6 +28,50 @@ SYSTEM_PROMPT = (
     "[1]\" Never use other citation styles such as footnotes or 【 】.\n"
     "Do not state section numbers or facts that the passages do not support. "
     "Be precise and concise; quote statutory text where relevant."
+)
+
+GRADE_PROMPT = (
+    "You are grading whether a set of retrieved legal source passages contains "
+    "enough information to answer a user's question.\n"
+    "Respond with exactly one word, nothing else: either \"sufficient\" or "
+    "\"insufficient\".\n"
+    "\"sufficient\" means the passages together cover what the question asks "
+    "(e.g. the relevant statutory provision and its content). "
+    "\"insufficient\" means the passages are unrelated, too vague, or clearly "
+    "lack the information needed to answer the question."
+)
+
+REWRITE_PROMPT = (
+    "You are improving a search query for a legal document retrieval system "
+    "about Indian Right to Information (RTI) law.\n"
+    "Rephrase the user's question into a single, more targeted search query: "
+    "use precise legal terminology, spell out relevant concepts, or break a "
+    "vague question into a focused one.\n"
+    "Respond with ONLY the rewritten query, nothing else."
+)
+
+VERIFY_PROMPT = (
+    "You are verifying a legal answer generated from retrieved source chunks.\n"
+    "The answer cites sources as [1], [2], etc. The retrieved source chunks are "
+    "numbered below with the same numbers.\n"
+    "Check whether EVERY factual claim in the answer (facts, figures, amounts, "
+    "dates, section numbers, legal rules) actually appears in the cited source "
+    "chunk(s). A claim is unsupported if the cited source chunk does not state "
+    "it.\n"
+    "If every claim is supported, respond with exactly:\n"
+    "VERDICT: SUPPORTED\n"
+    "If any claim is not supported, respond with:\n"
+    "VERDICT: UNSUPPORTED\n"
+    "<one bullet line per unsupported claim, quoting the claim and naming the "
+    "source number it was not found in>\n"
+    "Do not add anything else."
+)
+
+STRICT_TAIL = (
+    "\n\nIMPORTANT: Stick STRICTLY and ONLY to what is stated in the passages. "
+    "Do not add any fee amounts, sums of money, dates, section numbers, or other "
+    "details that are not present in the passages. If a requested detail is not "
+    "stated in the passages, say it is not specified in the sources."
 )
 
 _tokenizer = None
@@ -116,7 +161,7 @@ def retrieve(model, bm25, chunks, question):
     return [(cid, label_for(chunks[cid]), chunks[cid]["text"]) for cid in out]
 
 
-def answer(client_groq, question, passages):
+def answer(client_groq, question, passages, strict=False):
     numbered = "\n\n".join(
         f"[{i + 1}] Source: {src}\n{text}" for i, (_cid, src, text) in enumerate(passages)
     )
@@ -125,6 +170,8 @@ def answer(client_groq, question, passages):
         f"SOURCE PASSAGES:\n{numbered}\n\n"
         "Answer the question using only these passages, citing sources as [1], [2], ..."
     )
+    if strict:
+        user_prompt += STRICT_TAIL
     resp = client_groq.chat.completions.create(
         model=GROQ_MODEL,
         messages=[
@@ -135,6 +182,98 @@ def answer(client_groq, question, passages):
         max_tokens=4096,
     )
     return resp.choices[0].message.content
+
+
+def parse_verdict(content):
+    low = content.lower()
+    if re.search(r"\bunsupported\b", low):
+        if re.search(r"no\s+unsupported", low):
+            return True, []
+        claims = []
+        for line in content.splitlines():
+            ls = line.strip().lstrip("*•-").strip()
+            if not ls or ls.lower().startswith("verdict"):
+                continue
+            claims.append(ls)
+        return False, claims
+    if re.search(r"\bsupported\b", low):
+        return True, []
+    return False, []
+
+
+def verify_answer(client_groq, question, reply, passages):
+    numbered = "\n\n".join(
+        f"[{i + 1}] Source: {src}\n{text}" for i, (_cid, src, text) in enumerate(passages)
+    )
+    user_prompt = (
+        f"QUESTION:\n{question}\n\nANSWER TO VERIFY:\n{reply}\n\n"
+        f"RETRIEVED SOURCE CHUNKS:\n{numbered}"
+    )
+    resp = client_groq.chat.completions.create(
+        model=GROQ_MODEL,
+        messages=[
+            {"role": "system", "content": VERIFY_PROMPT},
+            {"role": "user", "content": user_prompt},
+        ],
+        temperature=0.0,
+        max_tokens=2048,
+    )
+    return parse_verdict(resp.choices[0].message.content or "")
+
+
+def grade_sufficiency(client_groq, question, passages):
+    numbered = "\n\n".join(
+        f"[{i + 1}] Source: {src}\n{text[:600]}" for i, (_cid, src, text) in enumerate(passages)
+    )
+    resp = client_groq.chat.completions.create(
+        model=GROQ_MODEL,
+        messages=[
+            {"role": "system", "content": GRADE_PROMPT},
+            {"role": "user", "content": f"QUESTION:\n{question}\n\nRETRIEVED PASSAGES:\n{numbered}"},
+        ],
+        temperature=0.0,
+        max_tokens=2048,
+    )
+    content = (resp.choices[0].message.content or "").lower()
+    if re.search(r"insufficient|not\s*s?ufficient|not enough|does not", content):
+        return "insufficient"
+    if "sufficient" in content:
+        return "sufficient"
+    return "insufficient"
+
+
+def rewrite_query(client_groq, question, prev_queries=None):
+    lines = [f"ORIGINAL QUESTION: {question}", ""]
+    if prev_queries:
+        lines.append("The retrieval queries below did NOT find enough information to answer it:")
+        lines.extend(f"- {q}" for q in prev_queries)
+        lines.append("")
+        lines.append(
+            "Write a NEW single search query that is DIFFERENT from every query "
+            "listed above: use precise legal terminology from the Indian Right to "
+            "Information Act, 2005, name the relevant section and concept, and "
+            "focus it so a legal document retrieval system finds the right statute "
+            "text."
+        )
+    else:
+        lines.append(
+            "Write a single targeted search query using precise legal terminology "
+            "from the Indian Right to Information Act, 2005, naming the relevant "
+            "section and concept, so a legal document retrieval system finds the "
+            "right statute text."
+        )
+    lines.append("Respond with ONLY the rewritten query.")
+    resp = client_groq.chat.completions.create(
+        model=GROQ_MODEL,
+        messages=[
+            {"role": "system", "content": REWRITE_PROMPT},
+            {"role": "user", "content": "\n".join(lines)},
+        ],
+        temperature=0.4,
+        max_tokens=2048,
+    )
+    content = (resp.choices[0].message.content or "").strip().strip("\"'")
+    return content or question
 
 
 def main():
@@ -152,20 +291,91 @@ def main():
     question = " ".join(sys.argv[1:])
 
     try:
-        print(f"Retrieving for: {question}\n")
-        passages = retrieve(model, bm25, chunks, question)
-        print(f"Top {len(passages)} passages:")
-        for i, (cid, src, text) in enumerate(passages, 1):
-            snippet = " ".join(text.split()[:28])
-            print(f"  [{i}] ({src}) {snippet}...")
+        client_groq = Groq(api_key=api_key)
+
+        query = question
+        passages = None
+        grade = None
+        failed_queries = []
+
+        for attempt in range(1, MAX_RETRIEVAL_ATTEMPTS + 1):
+            print(f"\nRetrieving (attempt {attempt}) for: {query}\n")
+            passages = retrieve(model, bm25, chunks, query)
+            print(f"Top {len(passages)} passages:")
+            for i, (_cid, src, text) in enumerate(passages, 1):
+                snippet = " ".join(text.split()[:24])
+                print(f"  [{i}] ({src}) {snippet}...")
+
+            print(f"\nAttempt {attempt}: grading retrieved chunks...")
+            grade = grade_sufficiency(client_groq, question, passages)
+            if grade == "sufficient":
+                print(
+                    f"Attempt {attempt}: retrieval graded SUFFICIENT, proceeding to generation"
+                )
+                break
+
+            if attempt == MAX_RETRIEVAL_ATTEMPTS:
+                print(
+                    f"Attempt {attempt}: retrieval graded INSUFFICIENT; "
+                    "no retries left, stopping"
+                )
+                break
+            print(
+                f"Attempt {attempt}: retrieval graded INSUFFICIENT, rewriting query..."
+            )
+            failed_queries.append(query)
+            query = rewrite_query(client_groq, question, failed_queries)
+            print(f"Rewritten query: {query}")
+
+        if not passages or grade != "sufficient":
+            print(
+                "\nI don't have enough information in my knowledge base to answer "
+                "this confidently."
+            )
+            return
 
         print("\nGenerating answer with", GROQ_MODEL, "...\n")
-        client_groq = Groq(api_key=api_key)
         reply = answer(client_groq, question, passages)
         reply = re.sub(r"【(\d{1,2})】", r"[\1]", reply)
+
+        print("\nVerifying answer against sources...")
+        passed, unsupported = verify_answer(client_groq, question, reply, passages)
+        caveat = False
+        if passed:
+            print("Verification passed — all claims supported")
+        else:
+            if unsupported:
+                print(
+                    f"Verification found {len(unsupported)} unsupported claim(s), "
+                    "regenerating..."
+                )
+                for i, claim in enumerate(unsupported, 1):
+                    print(f"  Unsupported #{i}: {claim}")
+            else:
+                print("Verification flagged unsupported claims, regenerating...")
+            reply = answer(client_groq, question, passages, strict=True)
+            reply = re.sub(r"【(\d{1,2})】", r"[\1]", reply)
+            print("Re-running verification on regenerated answer...")
+            passed, unsupported = verify_answer(client_groq, question, reply, passages)
+            if passed:
+                print("Verification passed — all claims supported")
+            else:
+                caveat = True
+                print(
+                    "Verification still flagged unsupported claims after "
+                    "regeneration; showing answer with caveat."
+                )
+                for i, claim in enumerate(unsupported, 1):
+                    print(f"  Unsupported #{i}: {claim}")
+
         print("=" * 80)
         print("ANSWER")
         print("=" * 80)
+        if caveat:
+            print(
+                "\nNote: some parts of this answer could not be fully verified "
+                "against the source documents.\n"
+            )
         print(reply)
 
         print("\n" + "=" * 80)
