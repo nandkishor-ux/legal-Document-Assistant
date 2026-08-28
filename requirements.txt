@@ -1,0 +1,6 @@
+pdfplumber
+sentence-transformers
+rank-bm25
+qdrant-client
+groq
+python-dotenv
