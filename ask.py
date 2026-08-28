@@ -9,13 +9,13 @@ from qdrant_client import QdrantClient
 from rank_bm25 import BM25Okapi
 from sentence_transformers import SentenceTransformer
 
-from index import COLLECTION, EMBED_DIM, MODEL_NAME, QDRANT_PATH, CHUNKS_JSON, STOPWORDS
+from index import COLLECTION, EMBED_DIM, MODEL_NAME, QDRANT_PATH, CHUNKS_JSON, STOPWORDS, label_for
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 GROQ_MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
-TOP_K = 6
+TOP_K = 8
 
 SYSTEM_PROMPT = (
     "You are a legal research assistant specialising in Indian Right to "
@@ -55,7 +55,7 @@ def load_resources():
     return _tokenizer, _client, _bm25, _chunks
 
 
-def vector_hits(client, query_vec, limit=10):
+def vector_hits(client, query_vec, limit=15):
     res = client.query_points(
         collection_name=COLLECTION,
         query=query_vec.tolist(),
@@ -74,6 +74,11 @@ def rrf(ranked_lists, k=60):
     return sorted(fused.items(), key=lambda kv: kv[1], reverse=True)
 
 
+def parse_section_query(question):
+    m = re.search(r"(?:section|sec\.?|s\.)\s*(\d{1,2})", question, re.IGNORECASE)
+    return m.group(1) if m else None
+
+
 def retrieve(model, bm25, chunks, question):
     query_vec = model.encode([question], normalize_embeddings=True)[0]
     q_tokens = tokenize(question)
@@ -81,10 +86,34 @@ def retrieve(model, bm25, chunks, question):
     vec = vector_hits(_client, query_vec)
     kw_hits = [(i, s) for i, s in enumerate(bm25.get_scores(q_tokens)) if s > 0]
     kw_hits.sort(key=lambda kv: kv[1], reverse=True)
-    kw_hits = kw_hits[:10]
+    kw_hits = kw_hits[:15]
 
-    fused = rrf([vec, kw_hits])[:TOP_K]
-    return [(cid, chunks[cid]["source"], chunks[cid]["text"]) for cid, _ in fused]
+    fused = dict(rrf([vec, kw_hits]))
+    sec = parse_section_query(question)
+    if sec:
+        for cid, score in list(fused.items()):
+            c = chunks[cid]
+            if c.get("document_type") == "act" and c.get("section_number") == sec:
+                fused[cid] = score + 1.5
+                if c.get("chunk_type") == "parent":
+                    fused[cid] += 0.5
+    order = sorted(fused.items(), key=lambda kv: kv[1], reverse=True)
+    out = []
+    if sec:
+        parents = [i for i, c in enumerate(chunks)
+                   if c.get("document_type") == "act" and c.get("section_number") == sec
+                   and c.get("chunk_type") == "parent"]
+        parents.sort(key=lambda i: "consolidated" in chunks[i].get("source_document", ""))
+        for i in parents:
+            if i not in [p for p, _ in order[:TOP_K]] and len(out) < 2:
+                out.append(i)
+    for cid, _ in order:
+        if cid in out:
+            continue
+        out.append(cid)
+        if len(out) >= TOP_K:
+            break
+    return [(cid, label_for(chunks[cid]), chunks[cid]["text"]) for cid in out]
 
 
 def answer(client_groq, question, passages):
@@ -133,6 +162,7 @@ def main():
         print("\nGenerating answer with", GROQ_MODEL, "...\n")
         client_groq = Groq(api_key=api_key)
         reply = answer(client_groq, question, passages)
+        reply = re.sub(r"【(\d{1,2})】", r"[\1]", reply)
         print("=" * 80)
         print("ANSWER")
         print("=" * 80)
