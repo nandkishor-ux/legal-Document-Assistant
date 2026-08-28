@@ -4,3 +4,5 @@ rank-bm25
 qdrant-client
 groq
 python-dotenv
+pytesseract
+pdf2image
