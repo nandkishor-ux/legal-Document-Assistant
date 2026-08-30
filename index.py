@@ -26,7 +26,8 @@ CORPUS = [
      "document_type": "act"},
     {"path": "processed/delhi_rti_2001_ocr_final.txt",
      "source_document": "Delhi RTI Act 2001",
-     "document_type": "act"},
+     "document_type": "act",
+     "repair_sections": "delhi"},
     {"path": "processed/hc_judgment_2021_final.txt",
      "source_document": "Delhi HC Judgment, 22.01.2021",
      "document_type": "judgment"},
@@ -55,6 +56,128 @@ CLA_RE = re.compile(r"^\s*\(([a-z])\)\s*(.*)$")
 ROM_RE = re.compile(r"^\s*\(([ivxlcdm]{2,6})\)\s*(.*)$", re.IGNORECASE)
 INLINE_RE = re.compile(r"\((\d{1,2}|[a-z]{1,2}|[ivxlcdm]{1,6})\)")
 INLINE_SEP = "-—–:.("
+
+DELHI_TITLES = {
+    3: "Right to information",
+    4: "Obligations on public authorities",
+    5: "Procedure for supply of information",
+    6: "Restrictions on right to information",
+    7: "Appeal",
+    8: "Obligation on competent authority",
+    9: "Penalties",
+    10: "State Council for Right to Information",
+    11: "Act to have over-riding effect",
+    12: "Protection of action taken in good faith",
+}
+
+_HDR_SEP = re.compile(r"[:.]\s*-\s*(?=\S|$)")
+_STUB_WORD = re.compile(r"[A-Z][a-z]{3,}")
+
+
+def _repair_delhi_heading(line, expected):
+    s = line.strip()
+    num = None
+    m = SECTION_RE.match(s)
+    if m:
+        num = m.group(1)
+        s = s[m.end():]
+    sep = _HDR_SEP.search(s)
+    if sep:
+        title = s[:sep.start()].strip()
+        if (title and re.fullmatch(r"[A-Za-z'’\- ]+", title)
+                and title[0].isupper()
+                and sum(ch.islower() for ch in title) >= 4):
+            return num, title, s[sep.end():].strip()
+    if num is None and expected in DELHI_TITLES:
+        canon = DELHI_TITLES[expected]
+        word = s.split(" ", 1)[0] if s else ""
+        if _STUB_WORD.fullmatch(word) and canon.lower().startswith(word.lower()):
+            return None, canon, ""
+        low = s.lower()
+        for cut in range(1, len(canon) - 8):
+            if low.startswith(canon.lower()[cut:]):
+                return None, canon, s[sep.end():].strip() if sep else ""
+    return None
+
+
+def repair_delhi_sections(text):
+    lines = text.splitlines()
+    out = []
+    expected = 1
+    started = False
+    for ln in lines:
+        if not started:
+            m = SECTION_RE.match(ln.strip())
+            if m is None:
+                out.append(ln)
+                continue
+            started = True
+        hit = _repair_delhi_heading(ln, expected)
+        if hit is None:
+            out.append(ln)
+            continue
+        num, title, rest = hit
+        if num is not None:
+            expected = int(num)
+        out.append(f"{expected}. {title}.")
+        if rest:
+            out.append(rest)
+        expected += 1
+    while out and not out[-1].strip():
+        out.pop()
+    return "\n".join(out)
+
+
+_DELHI_PARENT_SPLIT = 900
+_DELHI_PARAGRAPH_MIN = 50
+
+
+def delhi_paragraph_children(text, source_document):
+    out = []
+    number = None
+    buf = []
+
+    def flush():
+        nonlocal number, buf
+        if number is None or number == "2" or len("\n".join(buf)) < _DELHI_PARENT_SPLIT:
+            buf = []
+            number = None
+            return
+        paras, cur = [], []
+        for ln in buf:
+            if ln:
+                cur.append(ln)
+            elif cur:
+                paras.append(" ".join(cur))
+                cur = []
+        if cur:
+            paras.append(" ".join(cur))
+        for p in paras:
+            if len(p) >= _DELHI_PARAGRAPH_MIN:
+                out.append({
+                    "source_document": source_document,
+                    "document_type": "act",
+                    "chunk_type": "child",
+                    "chapter": "",
+                    "section_number": number,
+                    "subsection": "",
+                    "clause": "",
+                    "sub_clause": "",
+                    "text": p,
+                })
+        buf = []
+        number = None
+
+    for raw in text.splitlines():
+        line = raw.strip()
+        m = SECTION_RE.match(line)
+        if m:
+            flush()
+            number = m.group(1)
+        elif number is not None:
+            buf.append(line)
+    flush()
+    return out
 
 
 def act_body_start(text):
@@ -371,10 +494,15 @@ def main():
 
     chunks = []
     for rec in records:
+        text = rec["text"]
+        if rec.get("repair_sections") == "delhi":
+            text = repair_delhi_sections(text)
         if rec["document_type"] == "act":
-            parts = chunk_act(rec["text"])
+            parts = chunk_act(text)
             for c in parts:
                 c["source_document"] = rec["source_document"]
+            if rec.get("repair_sections") == "delhi":
+                parts += delhi_paragraph_children(text, rec["source_document"])
         else:
             parts = chunk_case(rec["text"], rec["source_document"], rec["document_type"])
         for c in parts:

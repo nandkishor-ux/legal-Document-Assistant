@@ -1,0 +1,55 @@
+{
+  "generated_at": "2026-08-31T01:12:15",
+  "model": "openai/gpt-oss-120b",
+  "n_questions": 15,
+  "overall_raw_all": {
+    "faithfulness": 0.4879,
+    "answer_relevancy": 0.3476,
+    "context_precision": 0.6452,
+    "context_recall": 0.6889
+  },
+  "answered": {
+    "n": 7,
+    "ids": [
+      "F2",
+      "F4",
+      "F5",
+      "G1",
+      "G3",
+      "G4",
+      "G5"
+    ],
+    "averages": {
+      "faithfulness": 0.9026,
+      "answer_relevancy": 0.7449,
+      "context_precision": 0.6361,
+      "context_recall": 1.0
+    }
+  },
+  "refused": {
+    "n": 8,
+    "ids": [
+      "F1",
+      "F3",
+      "G2",
+      "M1",
+      "M2",
+      "M3",
+      "O1",
+      "O2"
+    ],
+    "refusal_accuracy": 0.25,
+    "correct_refusals": [
+      "O1",
+      "O2"
+    ],
+    "overcautious_refusals": [
+      "F1",
+      "F3",
+      "G2",
+      "M1",
+      "M2",
+      "M3"
+    ]
+  }
+}

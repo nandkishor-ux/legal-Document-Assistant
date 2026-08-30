@@ -1,0 +1,123 @@
+PER-SOURCE CHUNK COUNTS
+   256  RTI Act 2005
+   235  RTI Act 2005 (consolidated 01.02.2011)
+    49  Delhi RTI Act 2001
+    20  Delhi HC Judgment, 22.01.2021
+     4  CIC Decision, 23.04.2026
+
+Delhi RTI Act 2001: 49 chunks
+
+DELHI CHUNK INVENTORY (section / paragraph)
+  sec   1 parent: Delhi RTI Act 2001, section 1  Short title and commencement.  ...
+  sec   2 parent: Delhi RTI Act 2001, section 2  Definitions. - In this Act, un ...
+  sec  13 parent: Delhi RTI Act 2001, section 13  Charging of fees. - The compe ...
+  sec  14 parent: Delhi RTI Act 2001, section 14  Laying of Annual Report of St ...
+  sec  15 parent: Delhi RTI Act 2001, section 15  Power to make rules. - (1) Th ...
+  sec  16 parent: Delhi RTI Act 2001, section 16  Removal of difficulties :- (1 ...
+act chunk breakdown (section,type)->count: {'1/child': 2, '1/parent': 1, '13/parent': 1, '14/parent': 1, '15/child': 6, '15/parent': 1, '16/child': 2, '16/parent': 1, '2/child': 33, '2/parent': 1}
+
+====================================================================================================
+VECTOR SEARCH (M1 query) — DELHI-ONLY, top 8 with cosine scores
+====================================================================================================
+  score=0.7466  Delhi RTI Act 2001, section 15(2)(a)
+  score=0.7011  Delhi RTI Act 2001, section 1
+  score=0.6997  Delhi RTI Act 2001, section 15
+  score=0.6938  Delhi RTI Act 2001, section 2(4)(b)
+  score=0.6888  Delhi RTI Act 2001, section 2(4)(c)
+  score=0.6851  Delhi RTI Act 2001, section 2(b)
+  score=0.6790  Delhi RTI Act 2001, section 2(3)
+  score=0.6782  Delhi RTI Act 2001, section 2(v)
+
+VECTOR SEARCH (M1 query) — COMBINED (all docs), top 10
+  score=0.7466  Delhi RTI Act 2001, section 15(2)(a)
+  score=0.7241  RTI Act 2005 (consolidated 01.02.2011), section 7(6)
+  score=0.7180  RTI Act 2005, section 7(6)
+  score=0.7011  Delhi RTI Act 2001, section 1
+  score=0.6997  Delhi RTI Act 2001, section 15
+  score=0.6938  Delhi RTI Act 2001, section 2(4)(b)
+  score=0.6888  Delhi RTI Act 2001, section 2(4)(c)
+  score=0.6851  Delhi RTI Act 2001, section 2(b)
+  score=0.6790  Delhi RTI Act 2001, section 2(3)
+  score=0.6782  Delhi RTI Act 2001, section 2(v)
+
+BM25 (M1 query) — DELHI-ONLY, top 8
+  score=   17.61  Delhi RTI Act 2001, section 2(a)
+  score=   15.05  Delhi RTI Act 2001, section 2(3)
+  score=   13.84  Delhi RTI Act 2001, section 1(1)
+  score=   13.76  Delhi RTI Act 2001, section 2(h)
+  score=   13.52  Delhi RTI Act 2001, section 2(4)(d)
+  score=   12.44  Delhi RTI Act 2001, section 1
+  score=   12.12  Delhi RTI Act 2001, section 15(2)(c)
+  score=   12.07  Delhi RTI Act 2001, section 2(4)(c)
+
+====================================================================================================
+DELHI SECTION TEXTS: keyword sweep across all Delhi chunks
+====================================================================================================
+
+-- keyword: 'furnish'
+  [494] Delhi RTI Act 2001, section 2
+      ...'ss orders thereon refusing the request nd in any case within thirty days from the date (2) Upon receip it and furnish the information as soon as practicable but normally within 15 days a of receipt of application. The informati'...
+  [516] Delhi RTI Act 2001, section 2(2)(i)
+      ...'rsonally g the information within the period specified. Wher this Actwithi eee to supply information fails to furnish the information asked for under and which he kno me specified or furnishes any information which is false in '...
+  [518] Delhi RTI Act 2001, section 2(2)(i)(iii)
+      ...'rsonally g the information within the period specified. Wher this Actwithi eee to supply information fails to furnish the information asked for under and which he kno me specified or furnishes any information which is false in '...
+  (3 chunk(s) hit)
+
+-- keyword: 'within thirty'
+  [494] Delhi RTI Act 2001, section 2
+      ...'uthority shall consider. required by the applicant or pass orders thereon refusing the request nd in any case within thirty days from the date (2) Upon receip it and furnish the information as soon as practicable but normally within '...
+  [515] Delhi RTI Act 2001, section 2(e)
+      ...'uthority shall consider. required by the applicant or pass orders thereon refusing the request nd in any case within thirty days from the date'...
+  [516] Delhi RTI Act 2001, section 2(2)(i)
+      ...'n order of the competent authority, or any person who has not received any order from the competent authority within thirty working days, may appeal to the Public Grievances Commission; The decision of the Public Grievances Commissio'...
+  [518] Delhi RTI Act 2001, section 2(2)(i)(iii)
+      ...'n order of the competent authority, or any person who has not received any order from the competent authority within thirty working days, may appeal to the Public Grievances Commission; The decision of the Public Grievances Commissio'...
+  (4 chunk(s) hit)
+
+-- keyword: 'time limit'
+  (0 chunk(s) hit)
+
+-- keyword: 'subject to'
+  [494] Delhi RTI Act 2001, section 2
+      ...'ds, or taking saw sias ol material ton and obtaining certified copies of Right to information. - Subj ; ; - ~ Subject to th isi , information from a competent authority e provisions of this Act, every citizen shall have right to o'...
+  [504] Delhi RTI Act 2001, section 2(i)
+      ...'ds, or taking saw sias ol material ton and obtaining certified copies of Right to information. - Subj ; ; - ~ Subject to th isi , information from a competent authority e provisions of this Act, every citizen shall have right to o'...
+  [516] Delhi RTI Act 2001, section 2(2)(i)
+      ...'cords, as per ie 0 ent authority. - Every competent authority shall be under a duty to maintain all Ormation, subject to na rational requirements, duly catalogued and indexed, and grant access to Provisions of this Act, to any cit'...
+  [518] Delhi RTI Act 2001, section 2(2)(i)(iii)
+      ...'cords, as per ie 0 ent authority. - Every competent authority shall be under a duty to maintain all Ormation, subject to na rational requirements, duly catalogued and indexed, and grant access to Provisions of this Act, to any cit'...
+  (4 chunk(s) hit)
+
+-- keyword: 'penalty'
+  [494] Delhi RTI Act 2001, section 2
+      ...'ay be required under the service rules pertaining to disciplina lon applicable to him, for imposition of such penalty as may be determined by the ry authority under such rules or as prescribed in the Rules. State Council for Ri'...
+  [516] Delhi RTI Act 2001, section 2(2)(i)
+      ...'ay be required under the service rules pertaining to disciplina lon applicable to him, for imposition of such penalty as may be determined by the ry authority under such rules or as prescribed in the Rules. State Council for Ri'...
+  [518] Delhi RTI Act 2001, section 2(2)(i)(iii)
+      ...'ay be required under the service rules pertaining to disciplina lon applicable to him, for imposition of such penalty as may be determined by the ry authority under such rules or as prescribed in the Rules. State Council for Ri'...
+  (3 chunk(s) hit)
+
+-- keyword: 'fine'
+  (0 chunk(s) hit)
+
+-- keyword: 'exceeding'
+  [494] Delhi RTI Act 2001, section 2
+      ...'ive Reforms Department, then the Finance Minister shall be the Member. (c) such number of other officials not exceeding ten of which three members shall be elected representatives of the Legislative Assembly of the NCT of Delhi a'...
+  [522] Delhi RTI Act 2001, section 2(2)(c)
+      ...'Delhi RTI Act 2001, section 2(2)(c)\n(c) such number of other officials not exceeding ten of which three members shall be elected representatives of the Legislative Assembly of the NCT of Delhi a'...
+  (2 chunk(s) hit)
+
+-- keyword: 'commercial'
+  [494] Delhi RTI Act 2001, section 2
+      ...'hanged in confidence between the Centre and the Government or any of their authorities or agencies; trade and commercial secrets or any othér information protected by law; information whose release would constitute a breach of pri'...
+  [516] Delhi RTI Act 2001, section 2(2)(i)
+      ...'hanged in confidence between the Centre and the Government or any of their authorities or agencies; trade and commercial secrets or any othér information protected by law; information whose release would constitute a breach of pri'...
+  [518] Delhi RTI Act 2001, section 2(2)(i)(iii)
+      ...'hanged in confidence between the Centre and the Government or any of their authorities or agencies; trade and commercial secrets or any othér information protected by law; information whose release would constitute a breach of pri'...
+  (3 chunk(s) hit)
+
+-- keyword: 'trade secret'
+  (0 chunk(s) hit)
+
+-- keyword: 'exemption'
+  (0 chunk(s) hit)

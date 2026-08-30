@@ -1,0 +1,538 @@
+{
+  "generated_at": "2026-08-31T01:12:15",
+  "model": "openai/gpt-oss-120b",
+  "embeddings": "all-MiniLM-L6-v2",
+  "metrics": [
+    "faithfulness",
+    "answer_relevancy",
+    "context_precision",
+    "context_recall"
+  ],
+  "n_questions": 15,
+  "n_in_corpus": 13,
+  "ragas_eval_elapsed_s": 367.3,
+  "questions": [
+    {
+      "id": "F1",
+      "category": "factual",
+      "question": "How long does a CPIO or SPIO have to respond to an RTI application, and what is the special deadline when the information concerns a person's life or liberty?",
+      "ground_truth": "Section 7(1) of the RTI Act 2005 requires the CPIO/SPIO to provide the information, or reject the request, within 30 days of receiving the request. Where the information concerns the life or liberty of a person, it must be provided within 48 hours of the receipt of the request.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": false,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 14.0,
+      "retrieved_sources": [
+        "RTI Act 2005, section 7",
+        "RTI Act 2005 (consolidated 01.02.2011), section 7",
+        "RTI Act 2005, section 7(1)",
+        "RTI Act 2005, section 7(2)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 7(b)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 5(2)",
+        "RTI Act 2005, section 5(2)",
+        "RTI Act 2005, section 5"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": 0.0,
+        "answer_relevancy": -0.0,
+        "context_precision": 1.0,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "id": "F2",
+      "category": "factual",
+      "question": "What are the two stages of appeal under the RTI Act 2005 and what are their respective time limits?",
+      "ground_truth": "Under section 19 of the RTI Act 2005, a first appeal is made within 30 days to the officer senior in rank to the CPIO/SPIO (section 19(1)). A second appeal then lies within 90 days to the Central or State Information Commission (section 19(3)).",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "sufficient",
+      "attempts": 2,
+      "graceful_stop": false,
+      "graph_expansion_triggered": false,
+      "verification_passed": true,
+      "num_retrieved": 8,
+      "elapsed_s": 75.4,
+      "retrieved_sources": [
+        "RTI Act 2005, section 19",
+        "RTI Act 2005 (consolidated 01.02.2011), section 19",
+        "RTI Act 2005, section 19(6)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 19(6)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 19(1)(d)",
+        "RTI Act 2005, section 19(1)(a)",
+        "RTI Act 2005, section 19(3)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 19(1)(a)"
+      ],
+      "response": "The RTI Act provides two levels of appeal:\n\n1. **First‑level appeal** – an aggrieved person may appeal to the officer senior to the Central Public Information Officer (or State Public Information Officer) **within 30 days** of the expiry of the time‑limit for a decision or of receipt of the decision [6][1].\n\n2. **Second‑level appeal** – if the first appeal is unsatisfactory, a further appeal may be made to the Central Information Commission or the State Information Commission **within 90 days** of the date on which the decision should have been made or was actually received [5][7].",
+      "scores": {
+        "faithfulness": 0.8333,
+        "answer_relevancy": 0.8593,
+        "context_precision": 0.1429,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "id": "F3",
+      "category": "factual",
+      "question": "What penalty can the Information Commission impose on a CPIO who refuses an application without reasonable cause, and what is the maximum amount?",
+      "ground_truth": "Section 20(1) of the RTI Act 2005 allows the Commission to impose a penalty of 250 rupees for each day until the application is received or the information is furnished, but the total penalty must not exceed 25,000 rupees.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": false,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 60.3,
+      "retrieved_sources": [
+        "RTI Act 2005, section 20",
+        "RTI Act 2005 (consolidated 01.02.2011), section 20",
+        "RTI Act 2005 (consolidated 01.02.2011), section 20(1)",
+        "RTI Act 2005, section 20(1)",
+        "RTI Act 2005, section 20(2)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 20(2)",
+        "RTI Act 2005, section 18",
+        "RTI Act 2005 (consolidated 01.02.2011), section 18"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": 0.0,
+        "answer_relevancy": -0.0,
+        "context_precision": 1.0,
+        "context_recall": 0.0
+      }
+    },
+    {
+      "id": "F4",
+      "category": "factual",
+      "question": "Under section 8(1) of the RTI Act 2005, what is the exemption for information that would harm the competitive position of a third party?",
+      "ground_truth": "Section 8(1)(d) exempts information including commercial confidence, trade secrets, or intellectual property, where disclosure would harm the competitive position of a third party, unless the competent authority is satisfied that the larger public interest warrants the disclosure.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "sufficient",
+      "attempts": 1,
+      "graceful_stop": false,
+      "graph_expansion_triggered": false,
+      "verification_passed": true,
+      "num_retrieved": 8,
+      "elapsed_s": 46.2,
+      "retrieved_sources": [
+        "RTI Act 2005 (consolidated 01.02.2011), section 8",
+        "RTI Act 2005, section 8",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(1)(d)",
+        "RTI Act 2005, section 8(1)(d)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(1)(j)",
+        "RTI Act 2005, section 8(1)(j)",
+        "RTI Act 2005, section 8(1)(c)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(1)(c)"
+      ],
+      "response": "Section 8(1) exempts “information including commercial confidence, trade secrets or intellectual property, the disclosure of which would harm the competitive position of a third party, unless the competent authority is satisfied that larger public interest warrants the disclosure of such information.” [1][3]",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.6546,
+        "context_precision": 1.0,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "id": "F5",
+      "category": "factual",
+      "question": "If an RTI application is made to a public authority but the information is held by, or more closely connected to, another public authority, how soon must the first authority transfer the application?",
+      "ground_truth": "Under section 6(3) of the RTI Act 2005, the public authority to which the application is made must transfer the application (or the relevant part) to the other authority and inform the applicant immediately; the transfer must be made as soon as practicable and in no case later than five days from the date of receipt of the application.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "sufficient",
+      "attempts": 1,
+      "graceful_stop": false,
+      "graph_expansion_triggered": false,
+      "verification_passed": true,
+      "num_retrieved": 8,
+      "elapsed_s": 43.5,
+      "retrieved_sources": [
+        "RTI Act 2005 (consolidated 01.02.2011), section 6(3)(i)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 6(3)(i)(ii)",
+        "RTI Act 2005, section 6(3)(i)",
+        "RTI Act 2005, section 6(3)(i)(ii)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 5(2)",
+        "RTI Act 2005, section 5(2)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 6",
+        "RTI Act 2005 (consolidated 01.02.2011), section 19(8)(i)(ii)"
+      ],
+      "response": "The public authority that receives the application must forward it (or the relevant part) to the other authority **as soon as practicable, but no later than five days after receiving the application**【1†L1-L4】.",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.6741,
+        "context_precision": 1.0,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "id": "G1",
+      "category": "graph",
+      "question": "In the Union Bank of India RTI case, on what ground did the CPIO initially refuse the applicant's request for the board approval note?",
+      "ground_truth": "In the Delhi HC judgment of 22 January 2021 (Union Bank of India case), the CPIO refused the copy of the board note on the ground that it was an internal document of the Bank and of commercial confidence, and was therefore exempt from disclosure under section 8(1)(d) of the RTI Act.",
+      "expected_graph_expansion": true,
+      "expected_graceful_stop": false,
+      "final_grade": "sufficient",
+      "attempts": 1,
+      "graceful_stop": false,
+      "graph_expansion_triggered": true,
+      "verification_passed": true,
+      "num_retrieved": 11,
+      "elapsed_s": 143.3,
+      "retrieved_sources": [
+        "Delhi HC Judgment, 22.01.2021, paragraph 48-67",
+        "Delhi HC Judgment, 22.01.2021, paragraph 1-26",
+        "Delhi HC Judgment, 22.01.2021, paragraph 185-201",
+        "Delhi HC Judgment, 22.01.2021, paragraph 162-184",
+        "Delhi HC Judgment, 22.01.2021, paragraph 27-47",
+        "Delhi HC Judgment, 22.01.2021, paragraph 68-91",
+        "Delhi HC Judgment, 22.01.2021, paragraph 402-417",
+        "Delhi HC Judgment, 22.01.2021, paragraph 202-222",
+        "Delhi HC Judgment, 22.01.2021, paragraph 115-138",
+        "Delhi HC Judgment, 22.01.2021, paragraph 292-313",
+        "Delhi HC Judgment, 22.01.2021, paragraph 314-337"
+      ],
+      "response": "The CPIO first declined to furnish the board‑approval note on the basis that it was an internal document of the bank that constituted “commercial confidence” and was therefore exempt from disclosure under the exemption provision of the RTI Act. [5][7]",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.8487,
+        "context_precision": 0.6095,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "id": "G2",
+      "category": "graph",
+      "question": "What penalty did the CIC originally impose on each CPIO in the Union Bank case, and what did the High Court ultimately reduce it to?",
+      "ground_truth": "The CIC, by its final order dated 14 December 2020, imposed a penalty of Rs 10,000 each on the then CPIO and the present CPIO. The High Court of Delhi, by its judgment dated 22 January 2021, upheld the penalty but reduced it to Rs 5,000 each.",
+      "expected_graph_expansion": true,
+      "expected_graceful_stop": false,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": true,
+      "verification_passed": null,
+      "num_retrieved": 11,
+      "elapsed_s": 64.0,
+      "retrieved_sources": [
+        "RTI Act 2005, section 20",
+        "RTI Act 2005 (consolidated 01.02.2011), section 20",
+        "Delhi HC Judgment, 22.01.2021, paragraph 1-26",
+        "Delhi HC Judgment, 22.01.2021, paragraph 162-184",
+        "Delhi HC Judgment, 22.01.2021, paragraph 185-201",
+        "Delhi HC Judgment, 22.01.2021, paragraph 202-222",
+        "Delhi HC Judgment, 22.01.2021, paragraph 402-417",
+        "Delhi HC Judgment, 22.01.2021, paragraph 292-313",
+        "Delhi HC Judgment, 22.01.2021, paragraph 48-67",
+        "Delhi HC Judgment, 22.01.2021, paragraph 115-138",
+        "Delhi HC Judgment, 22.01.2021, paragraph 314-337"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": 0.0,
+        "answer_relevancy": 0.0,
+        "context_precision": 0.1,
+        "context_recall": 0.5
+      }
+    },
+    {
+      "id": "G3",
+      "category": "graph",
+      "question": "Why did the CIC find mala fides on the part of the petitioners in the Union Bank of India case?",
+      "ground_truth": "The CIC found mala fides because the CPIOs changed their stand: initially they said the board note could not be disclosed as it was exempt under section 8(1)(d) of the RTI Act, but after the show-cause notice they claimed the document was not traceable on record, an inconsistent and unreasonable change in position.",
+      "expected_graph_expansion": true,
+      "expected_graceful_stop": false,
+      "final_grade": "sufficient",
+      "attempts": 1,
+      "graceful_stop": false,
+      "graph_expansion_triggered": true,
+      "verification_passed": true,
+      "num_retrieved": 11,
+      "elapsed_s": 82.1,
+      "retrieved_sources": [
+        "Delhi HC Judgment, 22.01.2021, paragraph 185-201",
+        "Delhi HC Judgment, 22.01.2021, paragraph 1-26",
+        "Delhi HC Judgment, 22.01.2021, paragraph 115-138",
+        "Delhi HC Judgment, 22.01.2021, paragraph 402-417",
+        "Delhi HC Judgment, 22.01.2021, paragraph 92-114",
+        "Delhi HC Judgment, 22.01.2021, paragraph 48-67",
+        "Delhi HC Judgment, 22.01.2021, paragraph 68-91",
+        "Delhi HC Judgment, 22.01.2021, paragraph 202-222",
+        "Delhi HC Judgment, 22.01.2021, paragraph 162-184",
+        "Delhi HC Judgment, 22.01.2021, paragraph 292-313",
+        "Delhi HC Judgment, 22.01.2021, paragraph 314-337"
+      ],
+      "response": "The Central Information Commission held that the petitioners had acted in bad‑faith because they **changed their defence after the show‑cause notice**. Initially the CPIO had refused the information on the ground that the board notes were “internal documents” exempt under Section 8(1)(d). After the CIC’s notice the same officers suddenly claimed that the documents were “not traceable” and could not be produced, without giving any explanation as to why the records were unavailable. The Commission said that this abrupt and unexplained shift in position showed an intention to withhold important information and amounted to unreasonable conduct, leading it to find mala‑fides on the petitioners’ part and impose a penalty. [4] [1]",
+      "scores": {
+        "faithfulness": 0.8182,
+        "answer_relevancy": 0.6167,
+        "context_precision": 0.7,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "id": "G4",
+      "category": "graph",
+      "question": "In the CIC decision on Prasanta Kumar Sahoo, what information was sought and on what ground did the CPIO refuse it?",
+      "ground_truth": "In the CIC decision dated 23 April 2026 (Prasanta Kumar Sahoo v. CPIO, Ministry of Labour and Employment), the appellant sought a copy of the CVC investigation report (CVC complaint No. 19309/2023). The CPIO refused it as personal information under section 8(1)(j) of the RTI Act 2005, relying on DOPT's office memorandum dated 14 August 2013.",
+      "expected_graph_expansion": true,
+      "expected_graceful_stop": false,
+      "final_grade": "sufficient",
+      "attempts": 1,
+      "graceful_stop": false,
+      "graph_expansion_triggered": true,
+      "verification_passed": true,
+      "num_retrieved": 11,
+      "elapsed_s": 83.2,
+      "retrieved_sources": [
+        "CIC Decision, 23.04.2026, paragraph 62-85",
+        "CIC Decision, 23.04.2026, paragraph 1-27",
+        "Delhi HC Judgment, 22.01.2021, paragraph 202-222",
+        "Delhi HC Judgment, 22.01.2021, paragraph 338-360",
+        "Delhi HC Judgment, 22.01.2021, paragraph 383-401",
+        "Delhi HC Judgment, 22.01.2021, paragraph 162-184",
+        "Delhi HC Judgment, 22.01.2021, paragraph 1-26",
+        "Delhi HC Judgment, 22.01.2021, paragraph 269-291",
+        "CIC Decision, 23.04.2026, paragraph 28-43",
+        "Delhi HC Judgment, 22.01.2021, paragraph 48-67",
+        "Delhi HC Judgment, 22.01.2021, paragraph 115-138"
+      ],
+      "response": "The appellant, Prasanta Kumar Sahoo, filed an RTI application on 3 April 2025 requesting **a copy of the investigation report of CVC complaint No. 19309/2023** that had been examined by the Central Vigilance Officer, Ministry of Labour and Employment, together with the related reference ESICO/R/T/25/00014 which the ESIC had said was unavailable [2].\n\nThe Central Public Information Officer (CPIO) refused to disclose that report on the ground that **information about complaints made against a government officer and any action that may have been taken on those complaints is “personal information” under Section 8(1)(j) of the RTI Act**, and therefore the preliminary enquiry report could not be shared with the complainant [9].",
+      "scores": {
+        "faithfulness": 0.6667,
+        "answer_relevancy": 0.8014,
+        "context_precision": 0.0,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "id": "G5",
+      "category": "graph",
+      "question": "What did the CIC direct the CPIO to do in the Prasanta Kumar Sahoo case, even though it declined to release the full investigation report?",
+      "ground_truth": "The CIC held the refusal to share the full report legally sound but, in the interest of administrative transparency, directed the CPIO to provide a revised reply within 15 days, strictly limited to disclosing the broad outcome of the investigation without the report itself or its underlying records, and to send a compliance report to the Commission within 7 days thereafter.",
+      "expected_graph_expansion": true,
+      "expected_graceful_stop": false,
+      "final_grade": "sufficient",
+      "attempts": 1,
+      "graceful_stop": false,
+      "graph_expansion_triggered": true,
+      "verification_passed": true,
+      "num_retrieved": 10,
+      "elapsed_s": 75.0,
+      "retrieved_sources": [
+        "CIC Decision, 23.04.2026, paragraph 62-85",
+        "Delhi HC Judgment, 22.01.2021, paragraph 202-222",
+        "CIC Decision, 23.04.2026, paragraph 1-27",
+        "Delhi HC Judgment, 22.01.2021, paragraph 269-291",
+        "Delhi HC Judgment, 22.01.2021, paragraph 361-382",
+        "CIC Decision, 23.04.2026, paragraph 28-43",
+        "CIC Decision, 23.04.2026, paragraph 44-61",
+        "Delhi HC Judgment, 22.01.2021, paragraph 245-268",
+        "Delhi HC Judgment, 22.01.2021, paragraph 48-67",
+        "Delhi HC Judgment, 22.01.2021, paragraph 115-138"
+      ],
+      "response": "The Commission held that, while the request for the full investigation report could not be honoured, the CPIO must still give the appellant a revised reply that discloses only the broad outcome of the investigation (without furnishing the report or any underlying records) and must forward a compliance report to the Commission within seven days of that reply. [1]",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.7595,
+        "context_precision": 1.0,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "id": "M1",
+      "category": "multi_hop",
+      "question": "Compare the time limit within which information must be furnished under the Delhi RTI Act 2001 with the time limit under the Central RTI Act 2005.",
+      "ground_truth": "The Delhi RTI Act 2001 (section 5) requires information to be furnished as soon as practicable but normally within 15 days, and in any case within 30 days of the receipt of the application. The Central RTI Act 2005 (section 7(1)) provides a single limit of 30 days (48 hours where life or liberty is involved). So the Delhi Act's normal target is 15 days, whereas the Central Act's general target is 30 days.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": false,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 36.5,
+      "retrieved_sources": [
+        "RTI Act 2005, section 7",
+        "RTI Act 2005 (consolidated 01.02.2011), section 7",
+        "RTI Act 2005, section 7(8)(a)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 7(8)(i)(ii)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 7(8)(i)",
+        "RTI Act 2005, section 7(2)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 7(b)",
+        "RTI Act 2005, section 8(3)"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": 0.0,
+        "answer_relevancy": -0.0,
+        "context_precision": 1.0,
+        "context_recall": 0.3333
+      }
+    },
+    {
+      "id": "M2",
+      "category": "multi_hop",
+      "question": "How does the penalty for a CPIO differ between the Central RTI Act 2005 and the Delhi RTI Act 2001?",
+      "ground_truth": "Under section 20(1) of the Central RTI Act 2005, the Commission may impose a monetary penalty of 250 rupees per day (capped at 25,000 rupees) on a CPIO who refuses or delays without reasonable cause. The Delhi RTI Act 2001 does not prescribe a fixed monetary fine; instead the person responsible for furnishing information is personally liable, and the remedy is disciplinary action under the applicable service rules.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": false,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 42.4,
+      "retrieved_sources": [
+        "RTI Act 2005 (consolidated 01.02.2011), section 20",
+        "RTI Act 2005, section 20",
+        "RTI Act 2005, section 20(1)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 20(1)",
+        "Delhi HC Judgment, 22.01.2021, paragraph 202-222",
+        "RTI Act 2005 (consolidated 01.02.2011), section 2(d)",
+        "Delhi HC Judgment, 22.01.2021, paragraph 383-401",
+        "RTI Act 2005 (consolidated 01.02.2011), section 5"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": 0.0,
+        "answer_relevancy": 0.0,
+        "context_precision": 0.8056,
+        "context_recall": 0.5
+      }
+    },
+    {
+      "id": "M3",
+      "category": "multi_hop",
+      "question": "How do the exemption grounds for commercial and trade secrets differ between the Central RTI Act 2005 and the Delhi RTI Act 2001?",
+      "ground_truth": "The Central RTI Act 2005 (section 8(1)(d)) exempts commercial confidence, trade secrets, and intellectual property, and allows disclosure if the competent authority is satisfied that the larger public interest warrants it. The Delhi RTI Act 2001 (section 6, clause on trade and commercial secrets) exempts 'trade and commercial secrets or any other information protected by law', but does not include an express larger-public-interest override.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": false,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 38.4,
+      "retrieved_sources": [
+        "RTI Act 2005, section 8",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8",
+        "RTI Act 2005, section 8(1)(d)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(1)(d)",
+        "RTI Act 2005, section 8(2)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(2)",
+        "RTI Act 2005, section 8(1)(a)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(1)(a)"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": 0.0,
+        "answer_relevancy": 0.0,
+        "context_precision": 1.0,
+        "context_recall": 0.5
+      }
+    },
+    {
+      "id": "O1",
+      "category": "out_of_corpus",
+      "question": "What does the RTI Act 2005 say about the regulation of cryptocurrency, Bitcoin, or digital currency by the Reserve Bank of India?",
+      "ground_truth": "The RTI Act 2005 contains no provision on the regulation of cryptocurrency, Bitcoin, or digital currency by the Reserve Bank of India. The knowledge base does not cover this topic, so the system should state that it does not have enough information rather than fabricate an answer.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": true,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": false,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 25.2,
+      "retrieved_sources": [
+        "RTI Act 2005, section 8",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8",
+        "RTI Act 2005, section 8(1)(a)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(1)(a)",
+        "RTI Act 2005, section 8(3)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(3)",
+        "Delhi RTI Act 2001, section 2(d)",
+        "RTI Act 2005, section 4(1)(v)(vii)"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.0,
+        "context_precision": 0.0,
+        "context_recall": 0.5
+      }
+    },
+    {
+      "id": "O2",
+      "category": "out_of_corpus",
+      "question": "What punishment does the RTI Act 2005 prescribe for the crime of kidnapping a person for ransom?",
+      "ground_truth": "The RTI Act 2005 does not prescribe any punishment for the criminal offence of kidnapping for ransom; that is criminal law, not covered by the RTI Act. The knowledge base has no such information, so the system should say it does not have enough information rather than invent a penalty.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": true,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": false,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 40.7,
+      "retrieved_sources": [
+        "RTI Act 2005 (consolidated 01.02.2011), section 20",
+        "RTI Act 2005, section 20",
+        "RTI Act 2005 (consolidated 01.02.2011), section 20(1)",
+        "RTI Act 2005, section 20(1)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 20(2)",
+        "RTI Act 2005, section 20(2)",
+        "RTI Act 2005, section 18(1)(e)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 18(1)(e)"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": 0.0,
+        "answer_relevancy": 0.0,
+        "context_precision": 0.3206,
+        "context_recall": 0.0
+      }
+    }
+  ],
+  "overall_all": {
+    "faithfulness": 0.4879,
+    "answer_relevancy": 0.3476,
+    "context_precision": 0.6452,
+    "context_recall": 0.6889
+  },
+  "overall_in_corpus": {
+    "faithfulness": 0.486,
+    "answer_relevancy": 0.4011,
+    "context_precision": 0.7198,
+    "context_recall": 0.7564
+  },
+  "out_of_corpus_behavior": [
+    {
+      "id": "O1",
+      "expected_graceful_stop": true,
+      "graceful_stop": true,
+      "pass": true,
+      "response": "I don't have enough information in my knowledge base to answer this confidently."
+    },
+    {
+      "id": "O2",
+      "expected_graceful_stop": true,
+      "graceful_stop": true,
+      "pass": true,
+      "response": "I don't have enough information in my knowledge base to answer this confidently."
+    }
+  ]
+}

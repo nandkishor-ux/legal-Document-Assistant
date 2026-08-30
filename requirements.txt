@@ -6,3 +6,8 @@ groq
 python-dotenv
 pytesseract
 pdf2image
+# RAG evaluation
+ragas
+datasets
+langchain-openai
+langchain-community

@@ -1,0 +1,93 @@
+{
+  "generated_at": "2026-08-29T02:54:27",
+  "model": "openai/gpt-oss-120b",
+  "embeddings": "all-MiniLM-L6-v2",
+  "metrics": [
+    "faithfulness",
+    "answer_relevancy",
+    "context_precision",
+    "context_recall"
+  ],
+  "n_questions": 2,
+  "n_in_corpus": 2,
+  "ragas_eval_elapsed_s": 104.6,
+  "questions": [
+    {
+      "id": "F1",
+      "category": "factual",
+      "question": "How long does a CPIO or SPIO have to respond to an RTI application, and what is the special deadline when the information concerns a person's life or liberty?",
+      "ground_truth": "Section 7(1) of the RTI Act 2005 requires the CPIO/SPIO to provide the information, or reject the request, within 30 days of receiving the request. Where the information concerns the life or liberty of a person, it must be provided within 48 hours of the receipt of the request.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": true,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 5.3,
+      "retrieved_sources": [
+        "RTI Act 2005, section 7",
+        "RTI Act 2005 (consolidated 01.02.2011), section 7",
+        "RTI Act 2005, section 7(1)",
+        "RTI Act 2005, section 7(8)(a)",
+        "RTI Act 2005, section 7(6)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 7(6)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 7(8)(i)(ii)",
+        "RTI Act 2005, section 8(3)"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": null,
+        "answer_relevancy": -0.0,
+        "context_precision": 1.0,
+        "context_recall": null
+      }
+    },
+    {
+      "id": "F2",
+      "category": "factual",
+      "question": "What are the two stages of appeal under the RTI Act 2005 and what are their respective time limits?",
+      "ground_truth": "Under section 19 of the RTI Act 2005, a first appeal is made within 30 days to the officer senior in rank to the CPIO/SPIO (section 19(1)). A second appeal then lies within 90 days to the Central or State Information Commission (section 19(3)).",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "sufficient",
+      "attempts": 2,
+      "graceful_stop": false,
+      "graph_expansion_triggered": false,
+      "verification_passed": true,
+      "num_retrieved": 8,
+      "elapsed_s": 72.0,
+      "retrieved_sources": [
+        "RTI Act 2005, section 19",
+        "RTI Act 2005 (consolidated 01.02.2011), section 19",
+        "RTI Act 2005 (consolidated 01.02.2011), section 19(1)(d)",
+        "RTI Act 2005, section 19(3)",
+        "RTI Act 2005, section 19(1)(a)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 19(1)(a)",
+        "RTI Act 2005, section 19(2)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 19(1)(i)"
+      ],
+      "response": "The RTI Act provides two levels of appeal:\n\n1. **First‑level appeal** – an aggrieved person may prefer an appeal to the officer senior to the Central or State Public Information Officer **within 30 days** of the expiry of the prescribed period or of receipt of the decision (the officer may admit a later filing for sufficient cause)【1†L1-L4】.\n\n2. **Second‑level appeal** – if the first appeal is unsatisfied, a second appeal may be filed with the Central Information Commission or the State Information Commission **within 90 days** of the date on which the decision should have been made or was actually received (the Commission may admit a later filing for sufficient cause)【1†L9-L12】【3†L1-L3】.",
+      "scores": {
+        "faithfulness": null,
+        "answer_relevancy": 0.8555,
+        "context_precision": null,
+        "context_recall": 1.0
+      }
+    }
+  ],
+  "overall_all": {
+    "faithfulness": null,
+    "answer_relevancy": 0.4278,
+    "context_precision": 1.0,
+    "context_recall": 1.0
+  },
+  "overall_in_corpus": {
+    "faithfulness": null,
+    "answer_relevancy": 0.4278,
+    "context_precision": 1.0,
+    "context_recall": 1.0
+  },
+  "out_of_corpus_behavior": []
+}

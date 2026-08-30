@@ -2,10 +2,12 @@ import json
 import os
 import re
 import sys
+import time
 
 from dotenv import load_dotenv
 from groq import Groq
 from qdrant_client import QdrantClient
+from qdrant_client.models import FieldCondition, Filter, MatchValue
 from rank_bm25 import BM25Okapi
 from sentence_transformers import SentenceTransformer
 
@@ -26,6 +28,68 @@ GRAPH_REF_RE = re.compile(
     r"(?:\((\d{1,2})\)\s*)?"
     r"(?:\(([a-z])\))?"
 )
+EXPAND_TOP_RANK = 3  # trigger chunk must be within the fused top-4
+
+_CASE_INTENT_MARKERS = (
+    r"\bcic\b", r"\bhigh court\b", r"\bcourt\b", r"\bcase\b",
+    r"\bjudgment\b", r"\bdecision\b", r"\bpetitioner\w*",
+    r"\bmala\s*fide\w*\b", r"\bprasanta\b", r"\bunion\s*bank\b",
+)
+
+DOC_GROUPS = [
+    {
+        "name": "Central",
+        "docs": ["RTI Act 2005", "RTI Act 2005 (consolidated 01.02.2011)"],
+        "patterns": [
+            r"\bcentral\b[^.]*?\b(?:rti|right\s+to\s+information)\b",
+            r"\b(?:rti act|right to information act)[, ]*?\s*2005\b",
+            r"\bact\b[^.]*?\s*2005\b",
+        ],
+    },
+    {
+        "name": "Delhi",
+        "docs": ["Delhi RTI Act 2001"],
+        "patterns": [
+            r"\bdelhi\b[^.]*?\b(?:rti|right\s+to\s+information)\b",
+            r"\bdelhi\b[^.]*?\bact\b[^.]*?\s*2001\b",
+            r"\b(?:rti act|right to information act)[, ]*?\s*2001\b",
+            r"\bdelhi\s+act\b",
+        ],
+    },
+]
+
+
+def matched_doc_groups(question):
+    """Which distinct act groups the question explicitly names."""
+    q = question or ""
+    return [g for g in DOC_GROUPS
+            if any(re.search(p, q, re.IGNORECASE) for p in g["patterns"])]
+
+
+def _chat_completion(client_groq, retries=6, backoff=2.0, **kwargs):
+    """Groq chat completion with retry/backoff for transient rate limits (429)."""
+    for attempt in range(retries):
+        try:
+            return client_groq.chat.completions.create(**kwargs)
+        except Exception as exc:
+            status = getattr(exc, "status_code", None)
+            resp = getattr(exc, "response", None)
+            if status is None and resp is not None:
+                status = getattr(resp, "status_code", None)
+            rate_limited = status == 429 or "rate limit" in str(exc).lower()
+            if not rate_limited or attempt == retries - 1:
+                raise
+            wait = backoff * (2 ** attempt)
+            print(f"[Groq rate limit hit; retrying in {wait:.0f}s...]")
+            time.sleep(wait)
+    raise RuntimeError("unreachable")
+
+
+def has_case_intent(question):
+    """Whether the question asks about a ruling/case (interpretation) rather
+    than about a statutory provision. Graph expansion is reserved for this."""
+    q = (question or "").lower()
+    return any(re.search(p, q) for p in _CASE_INTENT_MARKERS)
 
 SYSTEM_PROMPT = (
     "You are a legal research assistant specialising in Indian Right to "
@@ -109,11 +173,17 @@ def load_resources():
     return _tokenizer, _client, _bm25, _chunks
 
 
-def vector_hits(client, query_vec, limit=15):
+def vector_hits(client, query_vec, limit=15, docs=None):
+    if docs:
+        conds = [FieldCondition(key="source_document", match=MatchValue(value=d)) for d in docs]
+        query_filter = Filter(should=conds) if len(conds) > 1 else Filter(must=conds)
+    else:
+        query_filter = None
     res = client.query_points(
         collection_name=COLLECTION,
         query=query_vec.tolist(),
         limit=limit,
+        query_filter=query_filter,
         with_payload=True,
         with_vectors=False,
     )
@@ -168,12 +238,13 @@ def load_graph():
     return _edge_map
 
 
-def expand_graph(chunks, out):
+def expand_graph(chunks, out, question=None, ranks=None):
     """Append case-document chunks connected via graph.json to the result list.
 
-    Triggers when a returned chunk is an Act clause that has graph edges, or
-    (reverse direction) when a returned case chunk cites an Act clause that
-    has graph edges.
+    Only fires for case-intent questions (see has_case_intent) and only from a
+    trigger chunk that sits within the fused top-EXPAND_TOP_RANK. This stops a
+    statutory question that incidentally retrieves a graphed clause chunk or a
+    case paragraph citing one from dragging in extra case law.
     """
     edge_map = load_graph()
     if not edge_map:
@@ -181,6 +252,14 @@ def expand_graph(chunks, out):
     out_ids = set(cid for cid, _src, _t in out)
     added = []
     handled = set()
+    eligible = has_case_intent(question)
+
+    def allowed(cid):
+        if not eligible:
+            return False
+        if ranks is None:
+            return True
+        return ranks.get(cid, TOP_K) <= EXPAND_TOP_RANK
 
     def hook(key, entry):
         if key in handled:
@@ -211,6 +290,8 @@ def expand_graph(chunks, out):
         c = chunks[cid]
         if len(added) >= GRAPH_MAX_ADD:
             break
+        if not allowed(cid):
+            continue
         if c.get("document_type") == "act":
             key = clause_key(c)
             entry = edge_map.get(key)
@@ -231,17 +312,8 @@ def expand_graph(chunks, out):
     return out
 
 
-def retrieve(model, bm25, chunks, question):
-    query_vec = model.encode([question], normalize_embeddings=True)[0]
-    q_tokens = tokenize(question)
-
-    vec = vector_hits(_client, query_vec)
-    kw_hits = [(i, s) for i, s in enumerate(bm25.get_scores(q_tokens)) if s > 0]
-    kw_hits.sort(key=lambda kv: kv[1], reverse=True)
-    kw_hits = kw_hits[:15]
-
-    fused = dict(rrf([vec, kw_hits]))
-    sec = parse_section_query(question)
+def _finalize(chunks, fused, sec):
+    """Apply section boost + parent forcing, then produce ordered passages."""
     if sec:
         for cid, score in list(fused.items()):
             c = chunks[cid]
@@ -266,7 +338,50 @@ def retrieve(model, bm25, chunks, question):
         if len(out) >= TOP_K:
             break
     passages = [(cid, label_for(chunks[cid]), chunks[cid]["text"]) for cid in out]
-    return expand_graph(chunks, passages)
+    ranks = {cid: pos for pos, (cid, _s) in enumerate(order)}
+    return passages, ranks
+
+
+def retrieve(model, bm25, chunks, question):
+    groups = matched_doc_groups(question)
+    if len(groups) >= 2:
+        return retrieve_cross_doc(model, bm25, chunks, question, groups)
+
+    query_vec = model.encode([question], normalize_embeddings=True)[0]
+    q_tokens = tokenize(question)
+
+    vec = vector_hits(_client, query_vec)
+    kw_hits = [(i, s) for i, s in enumerate(bm25.get_scores(q_tokens)) if s > 0]
+    kw_hits.sort(key=lambda kv: kv[1], reverse=True)
+    kw_hits = kw_hits[:15]
+
+    fused = dict(rrf([vec, kw_hits]))
+    passages, ranks = _finalize(chunks, fused, parse_section_query(question))
+    return expand_graph(chunks, passages, question=question, ranks=ranks)
+
+
+def retrieve_cross_doc(model, bm25, chunks, question, groups):
+    """Per-document retrieval for questions naming two or more acts.
+
+    Retrieves within each named act group separately, so a comparison like
+    "Delhi RTI Act 2001 vs the Central RTI Act 2005" surfaces the operative
+    provision from BOTH acts instead of letting one act's hits crowd the other
+    out of top-K. Per-group runs are fused with RRF.
+    """
+    query_vec = model.encode([question], normalize_embeddings=True)[0]
+    q_tokens = tokenize(question)
+    runs = []
+    for g in groups:
+        members = {i for i, c in enumerate(chunks)
+                   if c.get("source_document") in set(g["docs"])}
+        vec = vector_hits(_client, query_vec, limit=30, docs=g["docs"])
+        kw = [(i, s) for i, s in enumerate(bm25.get_scores(q_tokens)) if s > 0 and i in members]
+        kw.sort(key=lambda kv: kv[1], reverse=True)
+        kw = kw[:15]
+        runs.append(rrf([vec, kw])[:6])
+    fused = dict(rrf(runs))
+    passages, ranks = _finalize(chunks, fused, parse_section_query(question))
+    return expand_graph(chunks, passages, question=question, ranks=ranks)
 
 
 def answer(client_groq, question, passages, strict=False):
@@ -280,7 +395,7 @@ def answer(client_groq, question, passages, strict=False):
     )
     if strict:
         user_prompt += STRICT_TAIL
-    resp = client_groq.chat.completions.create(
+    resp = _chat_completion(client_groq,
         model=GROQ_MODEL,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
@@ -317,7 +432,7 @@ def verify_answer(client_groq, question, reply, passages):
         f"QUESTION:\n{question}\n\nANSWER TO VERIFY:\n{reply}\n\n"
         f"RETRIEVED SOURCE CHUNKS:\n{numbered}"
     )
-    resp = client_groq.chat.completions.create(
+    resp = _chat_completion(client_groq,
         model=GROQ_MODEL,
         messages=[
             {"role": "system", "content": VERIFY_PROMPT},
@@ -329,11 +444,14 @@ def verify_answer(client_groq, question, reply, passages):
     return parse_verdict(resp.choices[0].message.content or "")
 
 
+GRADE_CHUNK_LIMIT = 1200
+
+
 def grade_sufficiency(client_groq, question, passages):
     numbered = "\n\n".join(
-        f"[{i + 1}] Source: {src}\n{text[:600]}" for i, (_cid, src, text) in enumerate(passages)
+        f"[{i + 1}] Source: {src}\n{text[:GRADE_CHUNK_LIMIT]}" for i, (_cid, src, text) in enumerate(passages)
     )
-    resp = client_groq.chat.completions.create(
+    resp = _chat_completion(client_groq,
         model=GROQ_MODEL,
         messages=[
             {"role": "system", "content": GRADE_PROMPT},
@@ -371,7 +489,7 @@ def rewrite_query(client_groq, question, prev_queries=None):
             "right statute text."
         )
     lines.append("Respond with ONLY the rewritten query.")
-    resp = client_groq.chat.completions.create(
+    resp = _chat_completion(client_groq,
         model=GROQ_MODEL,
         messages=[
             {"role": "system", "content": REWRITE_PROMPT},

@@ -1,0 +1,268 @@
+{
+  "generated_at": "2026-08-30T01:22:37",
+  "model": "openai/gpt-oss-20b",
+  "embeddings": "all-MiniLM-L6-v2",
+  "metrics": [
+    "faithfulness",
+    "answer_relevancy",
+    "context_precision",
+    "context_recall"
+  ],
+  "n_questions": 7,
+  "n_in_corpus": 5,
+  "ragas_eval_elapsed_s": null,
+  "questions": [
+    {
+      "id": "F1",
+      "category": "factual",
+      "question": "How long does a CPIO or SPIO have to respond to an RTI application, and what is the special deadline when the information concerns a person's life or liberty?",
+      "ground_truth": "Section 7(1) of the RTI Act 2005 requires the CPIO/SPIO to provide the information, or reject the request, within 30 days of receiving the request. Where the information concerns the life or liberty of a person, it must be provided within 48 hours of the receipt of the request.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": false,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 10.0,
+      "retrieved_sources": [
+        "RTI Act 2005, section 6",
+        "RTI Act 2005 (consolidated 01.02.2011), section 6",
+        "RTI Act 2005, section 7(1)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 5(2)",
+        "RTI Act 2005, section 5(2)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 18(1)(c)",
+        "RTI Act 2005, section 18(1)(c)",
+        "RTI Act 2005, section 19(6)"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": null,
+        "answer_relevancy": null,
+        "context_precision": null,
+        "context_recall": null
+      }
+    },
+    {
+      "id": "F3",
+      "category": "factual",
+      "question": "What penalty can the Information Commission impose on a CPIO who refuses an application without reasonable cause, and what is the maximum amount?",
+      "ground_truth": "Section 20(1) of the RTI Act 2005 allows the Commission to impose a penalty of 250 rupees for each day until the application is received or the information is furnished, but the total penalty must not exceed 25,000 rupees.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": false,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 51.7,
+      "retrieved_sources": [
+        "RTI Act 2005, section 14",
+        "Delhi RTI Act 2001, section 14",
+        "RTI Act 2005, section 14(3)(a)",
+        "RTI Act 2005, section 20",
+        "RTI Act 2005, section 20(1)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 20",
+        "RTI Act 2005 (consolidated 01.02.2011), section 20(1)",
+        "RTI Act 2005, section 26(2)(e)"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": null,
+        "answer_relevancy": null,
+        "context_precision": null,
+        "context_recall": null
+      }
+    },
+    {
+      "id": "F4",
+      "category": "factual",
+      "question": "Under section 8(1) of the RTI Act 2005, what is the exemption for information that would harm the competitive position of a third party?",
+      "ground_truth": "Section 8(1)(d) exempts information including commercial confidence, trade secrets, or intellectual property, where disclosure would harm the competitive position of a third party, unless the competent authority is satisfied that the larger public interest warrants the disclosure.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "sufficient",
+      "attempts": 1,
+      "graceful_stop": false,
+      "graph_expansion_triggered": false,
+      "verification_passed": true,
+      "num_retrieved": 8,
+      "elapsed_s": 44.3,
+      "retrieved_sources": [
+        "RTI Act 2005 (consolidated 01.02.2011), section 8",
+        "RTI Act 2005, section 8",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(1)(d)",
+        "RTI Act 2005, section 8(1)(d)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(1)(j)",
+        "RTI Act 2005, section 8(1)(j)",
+        "RTI Act 2005, section 8(1)(c)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(1)(c)"
+      ],
+      "response": "Under section 8(1) of the RTI Act 2005, information that includes commercial confidence, trade secrets or intellectual property whose disclosure would harm the competitive position of a third party is exempt from disclosure unless the competent authority is satisfied that a larger public interest warrants the disclosure of such information. [3]",
+      "scores": {
+        "faithfulness": null,
+        "answer_relevancy": null,
+        "context_precision": null,
+        "context_recall": null
+      }
+    },
+    {
+      "id": "M2",
+      "category": "multi_hop",
+      "question": "How does the penalty for a CPIO differ between the Central RTI Act 2005 and the Delhi RTI Act 2001?",
+      "ground_truth": "Under section 20(1) of the Central RTI Act 2005, the Commission may impose a monetary penalty of 250 rupees per day (capped at 25,000 rupees) on a CPIO who refuses or delays without reasonable cause. The Delhi RTI Act 2001 does not prescribe a fixed monetary fine; instead the person responsible for furnishing information is personally liable, and the remedy is disciplinary action under the applicable service rules.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": false,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 47.0,
+      "retrieved_sources": [
+        "RTI Act 2005, section 8",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8",
+        "RTI Act 2005, section 20(1)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 20(1)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 20",
+        "RTI Act 2005, section 20",
+        "RTI Act 2005 (consolidated 01.02.2011), section 2(d)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 5"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": null,
+        "answer_relevancy": null,
+        "context_precision": null,
+        "context_recall": null
+      }
+    },
+    {
+      "id": "O1",
+      "category": "out_of_corpus",
+      "question": "What does the RTI Act 2005 say about the regulation of cryptocurrency, Bitcoin, or digital currency by the Reserve Bank of India?",
+      "ground_truth": "The RTI Act 2005 contains no provision on the regulation of cryptocurrency, Bitcoin, or digital currency by the Reserve Bank of India. The knowledge base does not cover this topic, so the system should state that it does not have enough information rather than fabricate an answer.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": true,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": false,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 29.6,
+      "retrieved_sources": [
+        "RTI Act 2005, section 6",
+        "RTI Act 2005 (consolidated 01.02.2011), section 6",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(1)(a)",
+        "Delhi HC Judgment, 22.01.2021, paragraph 1-26",
+        "RTI Act 2005, section 8(1)(a)",
+        "RTI Act 2005, section 18(1)(c)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 1",
+        "RTI Act 2005 (consolidated 01.02.2011), section 18(1)(c)"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": null,
+        "answer_relevancy": null,
+        "context_precision": null,
+        "context_recall": null
+      }
+    },
+    {
+      "id": "O2",
+      "category": "out_of_corpus",
+      "question": "What punishment does the RTI Act 2005 prescribe for the crime of kidnapping a person for ransom?",
+      "ground_truth": "The RTI Act 2005 does not prescribe any punishment for the criminal offence of kidnapping for ransom; that is criminal law, not covered by the RTI Act. The knowledge base has no such information, so the system should say it does not have enough information rather than invent a penalty.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": true,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": false,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 38.4,
+      "retrieved_sources": [
+        "RTI Act 2005, section 15",
+        "Delhi RTI Act 2001, section 15",
+        "RTI Act 2005 (consolidated 01.02.2011), section 20(1)",
+        "RTI Act 2005, section 20(1)",
+        "RTI Act 2005, section 7(1)",
+        "RTI Act 2005, section 10(1)",
+        "RTI Act 2005, section 20",
+        "RTI Act 2005, section 2(1)(n)"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": null,
+        "answer_relevancy": null,
+        "context_precision": null,
+        "context_recall": null
+      }
+    },
+    {
+      "id": "M3",
+      "category": "multi_hop",
+      "question": "How do the exemption grounds for commercial and trade secrets differ between the Central RTI Act 2005 and the Delhi RTI Act 2001?",
+      "ground_truth": "The Central RTI Act 2005 (section 8(1)(d)) exempts commercial confidence, trade secrets, and intellectual property, and allows disclosure if the competent authority is satisfied that the larger public interest warrants it. The Delhi RTI Act 2001 (section 6, clause on trade and commercial secrets) exempts 'trade and commercial secrets or any other information protected by law', but does not include an express larger-public-interest override.",
+      "expected_graph_expansion": false,
+      "expected_graceful_stop": false,
+      "final_grade": "insufficient",
+      "attempts": 3,
+      "graceful_stop": true,
+      "graph_expansion_triggered": false,
+      "verification_passed": null,
+      "num_retrieved": 8,
+      "elapsed_s": 5.9,
+      "retrieved_sources": [
+        "RTI Act 2005, section 8",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(1)(d)",
+        "RTI Act 2005, section 8(1)(d)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(1)(a)",
+        "RTI Act 2005, section 8(1)(a)",
+        "RTI Act 2005, section 8(2)",
+        "RTI Act 2005 (consolidated 01.02.2011), section 8(2)"
+      ],
+      "response": "I don't have enough information in my knowledge base to answer this confidently.",
+      "scores": {
+        "faithfulness": null,
+        "answer_relevancy": null,
+        "context_precision": null,
+        "context_recall": null
+      }
+    }
+  ],
+  "overall_all": {
+    "faithfulness": null,
+    "answer_relevancy": null,
+    "context_precision": null,
+    "context_recall": null
+  },
+  "overall_in_corpus": {
+    "faithfulness": null,
+    "answer_relevancy": null,
+    "context_precision": null,
+    "context_recall": null
+  },
+  "out_of_corpus_behavior": [
+    {
+      "id": "O1",
+      "expected_graceful_stop": true,
+      "graceful_stop": true,
+      "pass": true,
+      "response": "I don't have enough information in my knowledge base to answer this confidently."
+    },
+    {
+      "id": "O2",
+      "expected_graceful_stop": true,
+      "graceful_stop": true,
+      "pass": true,
+      "response": "I don't have enough information in my knowledge base to answer this confidently."
+    }
+  ]
+}
