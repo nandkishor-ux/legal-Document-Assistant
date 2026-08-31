@@ -66,7 +66,7 @@ def matched_doc_groups(question):
             if any(re.search(p, q, re.IGNORECASE) for p in g["patterns"])]
 
 
-def _chat_completion(client_groq, retries=6, backoff=2.0, **kwargs):
+def _chat_completion(client_groq, retries=8, backoff=1.5, **kwargs):
     """Groq chat completion with retry/backoff for transient rate limits (429)."""
     for attempt in range(retries):
         try:
@@ -562,7 +562,7 @@ def main():
 
         print("\nGenerating answer with", GROQ_MODEL, "...\n")
         reply = answer(client_groq, question, passages)
-        reply = re.sub(r"【(\d{1,2})】", r"[\1]", reply)
+        reply = re.sub(r"【(\d{1,2})[^】]*】", r"[\1]", reply)
 
         print("\nVerifying answer against sources...")
         passed, unsupported = verify_answer(client_groq, question, reply, passages)
@@ -580,7 +580,7 @@ def main():
             else:
                 print("Verification flagged unsupported claims, regenerating...")
             reply = answer(client_groq, question, passages, strict=True)
-            reply = re.sub(r"【(\d{1,2})】", r"[\1]", reply)
+            reply = re.sub(r"【(\d{1,2})[^】]*】", r"[\1]", reply)
             print("Re-running verification on regenerated answer...")
             passed, unsupported = verify_answer(client_groq, question, reply, passages)
             if passed:

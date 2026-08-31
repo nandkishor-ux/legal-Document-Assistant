@@ -59,6 +59,7 @@ RAGAS_CHUNK_TRIM = 900  # chars kept per retrieved chunk for RAGAS scoring promp
 METRIC_NAMES = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
 LOW_SCORE_THRESHOLD = 0.5
 GROQ_API_KEY_ENV = "GROQ_API_KEY"
+QUOTA_PAUSE_S = 12  # idle between questions so Groq TPM windows can drain
 
 
 def build_ragas_llm(api_key):
@@ -180,12 +181,12 @@ def run_pipeline(client_groq, model, bm25, chunks, question,
                     "to answer this confidently.")
     else:
         reply = answer(client_groq, question, passages)
-        reply = re.sub(r"【(\d{1,2})】", r"[\1]", reply)
+        reply = re.sub(r"【(\d{1,2})[^】]*】", r"[\1]", reply)
         verification_passed, _unsupported = verify_answer(
             client_groq, question, reply, passages)
         if not verification_passed:
             strict = answer(client_groq, question, passages, strict=True)
-            strict = re.sub(r"【(\d{1,2})】", r"[\1]", strict)
+            strict = re.sub(r"【(\d{1,2})[^】]*】", r"[\1]", strict)
             strict_ok, _ = verify_answer(client_groq, question, strict, passages)
             if strict_ok:
                 reply = strict
@@ -240,6 +241,8 @@ def collect_rows(selected, checkpoint_path=None, done_ids=None,
 
     rows = []
     for i, item in enumerate(pending, 1):
+        if QUOTA_PAUSE_S and i > 1:
+            time.sleep(QUOTA_PAUSE_S)
         print(f"  ({i}/{len(pending)}) {item['id']} [{item['category']}] "
               f"{item['question'][:70]}")
         t0 = time.time()
