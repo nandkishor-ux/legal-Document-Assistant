@@ -1,121 +1,131 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect, useRef, useState } from 'react'
+import { ask } from './api.js'
+import MessageBubble from './components/MessageBubble.jsx'
+import TypingIndicator from './components/TypingIndicator.jsx'
+import ChatInput from './components/ChatInput.jsx'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [messages, setMessages] = useState([])
+  const [loading, setLoading] = useState(false)
+  const scrollRef = useRef(null)
+
+  // Keep the conversation scrolled to the latest message.
+  useEffect(() => {
+    const el = scrollRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [messages, loading])
+
+  const handleSend = async (question) => {
+    const userMsg = { role: 'user', content: question }
+    setMessages((prev) => [...prev, userMsg])
+    setLoading(true)
+    try {
+      const data = await ask(question)
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', ...data },
+      ])
+    } catch (err) {
+      const timedOut = err && err.name === 'AbortError'
+      const reason = timedOut
+        ? 'The request timed out after a couple of minutes. Please try again.'
+        : err && err.message
+          ? err.message
+          : 'Something went wrong while reaching the assistant.'
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'error',
+          content: `I couldn’t get an answer. ${reason}`,
+        },
+      ])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const hasConversation = messages.length > 0
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="flex h-full flex-col bg-slate-50">
+      {/* Header */}
+      <header className="shrink-0 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur sm:px-6">
+        <div className="mx-auto flex max-w-3xl items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e4b5e] text-lg text-white shadow-sm">
+            ⚖️
+          </div>
+          <div className="min-w-0">
+            <h1 className="truncate text-[17px] font-semibold tracking-tight text-slate-900">
+              RTI Legal Document Assistant
+            </h1>
+            <p className="truncate text-[13px] text-slate-500">
+              Cited, verified answers from the Indian Right to Information corpus.
+            </p>
+          </div>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+      </header>
+
+      {/* Conversation */}
+      <main ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
+        <div className="mx-auto flex max-w-3xl flex-col gap-4">
+          {!hasConversation && !loading && (
+            <div className="mx-auto mt-8 max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-8 text-center shadow-sm">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-2xl">
+                ⚖️
+              </div>
+              <h2 className="text-lg font-semibold text-slate-900">
+                Ask about the Right to Information
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                Try a question about the RTI Act 2005, Delhi RTI Act 2001, or
+                related case law. Every answer is grounded in cited sources and
+                automatically checked for accuracy.
+              </p>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                {[
+                  'What does Section 8(1)(j) protect?',
+                  'How long must a CPIO respond?',
+                  'What fees apply to an RTI request?',
+                ].map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => handleSend(s)}
+                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-600 transition hover:border-emerald-300 hover:bg-emerald-50"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {messages.map((msg, i) => {
+            if (msg.role === 'error') {
+              return (
+                <div key={i} className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {msg.content}
+                </div>
+              )
+            }
+            return <MessageBubble key={i} role={msg.role} message={msg} />
+          })}
+
+          {loading && <TypingIndicator />}
+        </div>
+      </main>
+
+      {/* Input */}
+      <footer className="shrink-0 border-t border-slate-200 bg-white/90 px-4 py-3 backdrop-blur sm:px-6">
+        <div className="mx-auto max-w-3xl">
+          <ChatInput onSend={handleSend} disabled={loading} />
+          <p className="mt-1.5 text-center text-[11px] text-slate-400">
+            Answers are auto-grounded in the indexed corpus and may take a few
+            seconds. Not legal advice.
           </p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      </footer>
+    </div>
   )
 }
 
