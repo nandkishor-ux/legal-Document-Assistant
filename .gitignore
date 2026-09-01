@@ -1,5 +1,12 @@
 venv/
+.venv/
 .env
 __pycache__/
+*.pyc
 processed/
+# vectorstore/: local Qdrant data + chunks.json. These are large, binary,
+# environment-specific, and lockable by running processes — never commit them.
 vectorstore/
+# local runtime artifacts (dev servers / pipes)
+*.log
+*.pid

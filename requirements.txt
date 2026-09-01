@@ -8,6 +8,7 @@ pytesseract
 pdf2image
 fastapi
 uvicorn[standard]
+streamlit
 # RAG evaluation
 ragas
 datasets

@@ -1,7 +1,0 @@
-INFO:     127.0.0.1:58552 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58552 - "OPTIONS /ask HTTP/1.1" 200 OK
-INFO:     127.0.0.1:61902 - "GET /ask HTTP/1.1" 405 Method Not Allowed
-INFO:     127.0.0.1:58297 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60661 - "POST /ask HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58375 - "POST /ask HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58401 - "POST /ask HTTP/1.1" 200 OK
