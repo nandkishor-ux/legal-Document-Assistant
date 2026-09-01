@@ -1,39 +1,51 @@
 {
-  "generated_at": "2026-08-31T07:29:14",
+  "generated_at": "2026-09-01T03:25:01",
   "model": "openai/gpt-oss-120b",
-  "n_questions": 7,
+  "n_questions": 15,
   "overall_raw_all": {
     "faithfulness": null,
-    "answer_relevancy": null,
+    "answer_relevancy": 0.7796,
     "context_precision": null,
     "context_recall": null
   },
   "answered": {
-    "n": 6,
+    "n": 11,
     "ids": [
       "F1",
       "F2",
       "F3",
       "F4",
       "F5",
-      "G1"
+      "G1",
+      "G3",
+      "G4",
+      "G5",
+      "M2",
+      "M3"
     ],
     "averages": {
       "faithfulness": null,
-      "answer_relevancy": null,
+      "answer_relevancy": 0.7796,
       "context_precision": null,
       "context_recall": null
     }
   },
   "refused": {
-    "n": 1,
+    "n": 4,
     "ids": [
-      "G2"
+      "G2",
+      "M1",
+      "O1",
+      "O2"
     ],
-    "refusal_accuracy": 0.0,
-    "correct_refusals": [],
+    "refusal_accuracy": 0.5,
+    "correct_refusals": [
+      "O1",
+      "O2"
+    ],
     "overcautious_refusals": [
-      "G2"
+      "G2",
+      "M1"
     ]
   }
 }

@@ -20,6 +20,11 @@ GROQ_MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 TOP_K = 8
 MAX_RETRIEVAL_ATTEMPTS = 3
 
+# Cross-encoder re-ranking: score a wider RRF candidate pool with a small
+# cross-encoder, then keep the top-K by that relevance signal.
+RERANK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+RERANK_POOL = 18  # wider candidate pool (post-RRF, pre-top-K) sent to re-ranker
+
 GRAPH_JSON = "graph.json"
 GRAPH_MAX_ADD = 3
 GRAPH_CASE_PER_CLAUSE = 2
@@ -151,6 +156,36 @@ _tokenizer = None
 _client = None
 _bm25 = None
 _chunks = None
+_cross_encoder = None
+
+
+def load_cross_encoder():
+    """Lazily load and cache the cross-encoder re-ranking model."""
+    global _cross_encoder
+    if _cross_encoder is None:
+        from sentence_transformers import CrossEncoder
+        _cross_encoder = CrossEncoder(RERANK_MODEL)
+    return _cross_encoder
+
+
+def rerank(question, pool, top_k=TOP_K, cross=None):
+    """Re-rank a candidate pool (wider than top_k) with a cross-encoder.
+
+    pool: list of (cid, src, text) tuples from RRF fusion.
+    Returns (reranked_passages, before_after) where before_after is a list of
+    strings describing each chosen chunk's RRF position vs its re-ranked slot.
+    """
+    if cross is None:
+        cross = load_cross_encoder()
+    pairs = [(question, text) for (_cid, _src, text) in pool]
+    scores = cross.predict(pairs, batch_size=32, show_progress_bar=False)
+    order = sorted(range(len(pool)), key=lambda i: scores[i], reverse=True)
+    reranked = [pool[i] for i in order[:top_k]]
+    before_after = []
+    for new_pos, idx in enumerate(order[:top_k], 1):
+        _cid, src, _t = pool[idx]
+        before_after.append(f"RRF rank {idx + 1} ({src}) -> re-ranked position {new_pos}")
+    return reranked, before_after
 
 
 def tokenize(text):
@@ -312,8 +347,12 @@ def expand_graph(chunks, out, question=None, ranks=None):
     return out
 
 
-def _finalize(chunks, fused, sec):
-    """Apply section boost + parent forcing, then produce ordered passages."""
+def _finalize(chunks, fused, sec, limit=TOP_K):
+    """Apply section boost + parent forcing, then produce ordered passages.
+
+    `limit` widens the returned candidate pool (used before re-ranking, when a
+    larger RRF candidate set should be re-ranked down to TOP_K).
+    """
     if sec:
         for cid, score in list(fused.items()):
             c = chunks[cid]
@@ -335,7 +374,7 @@ def _finalize(chunks, fused, sec):
         if cid in out:
             continue
         out.append(cid)
-        if len(out) >= TOP_K:
+        if len(out) >= limit:
             break
     passages = [(cid, label_for(chunks[cid]), chunks[cid]["text"]) for cid in out]
     ranks = {cid: pos for pos, (cid, _s) in enumerate(order)}
@@ -356,8 +395,19 @@ def retrieve(model, bm25, chunks, question):
     kw_hits = kw_hits[:15]
 
     fused = dict(rrf([vec, kw_hits]))
-    passages, ranks = _finalize(chunks, fused, parse_section_query(question))
+    pool, ranks = _finalize(chunks, fused, parse_section_query(question), limit=RERANK_POOL)
+    passages, before_after = rerank(question, pool)
+    print_rerank(question, before_after)
     return expand_graph(chunks, passages, question=question, ranks=ranks)
+
+
+def print_rerank(question, before_after):
+    """Print the before/after ranking adjustments from re-ranking."""
+    if not before_after:
+        return
+    print("Re-ranking (RRF -> cross-encoder):")
+    for line in before_after:
+        print(f"  {line}")
 
 
 def retrieve_cross_doc(model, bm25, chunks, question, groups):
@@ -380,7 +430,9 @@ def retrieve_cross_doc(model, bm25, chunks, question, groups):
         kw = kw[:15]
         runs.append(rrf([vec, kw])[:6])
     fused = dict(rrf(runs))
-    passages, ranks = _finalize(chunks, fused, parse_section_query(question))
+    pool, ranks = _finalize(chunks, fused, parse_section_query(question), limit=RERANK_POOL)
+    passages, before_after = rerank(question, pool)
+    print_rerank(question, before_after)
     return expand_graph(chunks, passages, question=question, ranks=ranks)
 
 
