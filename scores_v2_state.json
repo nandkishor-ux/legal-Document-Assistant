@@ -19,9 +19,26 @@
     },
     "F4": {
       "faithfulness": 1.0,
-      "answer_relevancy": 0.6443
+      "answer_relevancy": 0.6443,
+      "context_recall": 1.0
+    },
+    "F5": {
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.8128,
+      "context_precision": 1.0,
+      "context_recall": 1.0
+    },
+    "G1": {
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8121,
+      "context_precision": 0.5694,
+      "context_recall": 1.0
+    },
+    "G2": {
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0
     }
   },
   "order": [],
-  "last_saved": "2026-09-01T13:56:50"
+  "last_saved": "2026-09-02T00:44:30"
 }
