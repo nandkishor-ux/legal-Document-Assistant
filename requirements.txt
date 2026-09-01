@@ -6,6 +6,8 @@ groq
 python-dotenv
 pytesseract
 pdf2image
+fastapi
+uvicorn[standard]
 # RAG evaluation
 ragas
 datasets
